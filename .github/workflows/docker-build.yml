@@ -1,8 +1,9 @@
-iname: Build and Push to GHCR
+name: Docker Build GHCR
 
 on:
   push:
     branches: [ main, master ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -10,20 +11,23 @@ jobs:
     permissions:
       contents: read
       packages: write
-    
+
     steps:
-      - uses: actions/checkout@v4
-      
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
+          username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Build and push
+
+      - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: ghcr.io/roottimur1/tty1:latest  # 👈 ВСЕ В НИЖНЕМ РЕГИСТРЕ
+          tags: |
+            ghcr.io/roottimur1/tty1:latest
+            ghcr.io/roottimur1/tty1:${{ github.sha }}
